@@ -24,7 +24,7 @@ const WeatherCard = ({
         alt={description}
       />
       <h1>{Math.round(temperature)}°</h1>
-      <p>{description}</p>
+      <p style={{ color: "white" }}>{description}</p>
     </div>
   );
 };
