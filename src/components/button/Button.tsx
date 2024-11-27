@@ -1,5 +1,4 @@
-import React from 'react';
-import './button.css'
+import "./button.css";
 
 export default function Button(props: { label: string }) {
   return (
