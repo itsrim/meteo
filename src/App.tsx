@@ -4,18 +4,21 @@ import WeatherCard from "./components/WeatherCard";
 import "./index.css";
 
 function App() {
-  const [city, setCity] = useState("Toulouse");
+  const [city, setCity] = useState("Toulouse"); // Default city set to Toulouse
   const [weather, setWeather] = useState(null);
   const [hourlyForecast, setHourlyForecast] = useState([]);
-  const [dailyForecast, setDailyForecast] = useState([]);
-  const [backgroundImage, setBackgroundImage] = useState("");
+  const [dailyForecast, setDailyForecast] = useState([]); // Daily forecast data
+  const [backgroundImage, setBackgroundImage] = useState(""); // For today's weather image
 
   const isLocalEnvironment = () => {
     return window.location.hostname.includes("localhost");
   };
 
-  const handleCityChange = (selectedCity) => {
-    setCity(selectedCity);
+  const getImagePath = (weatherMain) => {
+    const mainWeather = weatherMain.toLowerCase();
+    return isLocalEnvironment()
+      ? `${mainWeather}.jpg` // Local path
+      : `/meteo/${mainWeather}.jpg`; // Production path
   };
 
   useEffect(() => {
@@ -25,9 +28,7 @@ function App() {
         const forecastData = await fetchForecastData(city);
 
         const mainWeather = weatherData.weather[0].main.toLowerCase();
-        const imageUrl = isLocalEnvironment()
-          ? `${mainWeather}.jpg`
-          : `/meteo/${mainWeather}.jpg`;
+        const imageUrl = getImagePath(mainWeather);
 
         console.log(`Image URL for today's weather: ${imageUrl}`);
         setBackgroundImage(imageUrl);
@@ -49,19 +50,22 @@ function App() {
         }));
         setHourlyForecast(todayHourly);
 
+        // Filter daily forecast for noon data and enrich with `main`
         const daily = forecastData.list.filter((item) =>
           item.dt_txt.includes("12:00:00")
         );
-        setDailyForecast(
-          daily.map((item) => ({
-            date: new Date(item.dt * 1000).toLocaleDateString("en-US", {
-              weekday: "long",
-            }),
-            temp: item.main.temp,
-            description: item.weather[0].description,
-            icon: item.weather[0].icon,
-          }))
-        );
+        const enrichedDaily = daily.map((item) => ({
+          date: new Date(item.dt * 1000).toLocaleDateString("en-US", {
+            weekday: "long",
+          }),
+          temp: item.main.temp,
+          description: item.weather[0].description,
+          icon: item.weather[0].icon,
+          main: item.weather[0].main, // Add `main` for background image
+        }));
+
+        console.log("Daily Forecast:", enrichedDaily); // Debug log
+        setDailyForecast(enrichedDaily);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -71,24 +75,25 @@ function App() {
 
   return (
     <div className="app">
-      {/* Input field */}
-      <input
-        type="text"
-        className="search-box"
-        placeholder="City?"
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
-      />
+      <div className="search-container">
+        <div className="search-box-wrapper">
+          <input
+            type="text"
+            className="search-box"
+            placeholder="City?"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+        </div>
+      </div>
 
       {/* City selection buttons */}
       <div className="city-buttons">
-        <button onClick={() => handleCityChange("Turku")}>Turku</button>
-        <button onClick={() => handleCityChange("Toulouse")}>Toulouse</button>
-        <button onClick={() => handleCityChange("Paris")}>Paris</button>
+        <button onClick={() => setCity("Turku")}>Turku</button>
+        <button onClick={() => setCity("Toulouse")}>Toulouse</button>
+        <button onClick={() => setCity("Paris")}>Paris</button>
       </div>
-
       <div className="weather-container">
-        {/* Current weather */}
         {weather && (
           <WeatherCard
             title={`Today in ${city}`}
@@ -99,7 +104,6 @@ function App() {
           />
         )}
 
-        {/* Hourly forecast */}
         <div className="hourly-container">
           <h3>Hourly Forecast</h3>
           <div className="hourly-forecast">
@@ -116,17 +120,22 @@ function App() {
           </div>
         </div>
 
-        {/* Daily forecast */}
         <div className="forecast-vertical">
-          {dailyForecast.map((day, index) => (
-            <WeatherCard
-              key={index}
-              title={day.date}
-              temperature={day.temp}
-              description={day.description}
-              icon={day.icon}
-            />
-          ))}
+          <h3>Daily Forecast</h3>
+          {dailyForecast.length > 0 ? (
+            dailyForecast.map((day, index) => (
+              <WeatherCard
+                key={index}
+                title={day.date}
+                temperature={day.temp}
+                description={day.description}
+                icon={day.icon}
+                backgroundImage={getImagePath(day.main)} // Correct background for each day
+              />
+            ))
+          ) : (
+            <p>No daily forecast available</p>
+          )}
         </div>
       </div>
     </div>
