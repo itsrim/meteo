@@ -1,0 +1,30 @@
+language: node_js
+node_js:
+  - "12"
+cache:
+  yarn: true
+  directories:
+    - public
+    - .cache
+install:
+  - yarn install
+script:
+  - yarn test
+  - yarn run build # Générer des fichiers HTML statiques
+
+# Voici la partie magique
+deploy:
+  # Utiliser le processus de déploiement des pages Github
+  provider: pages
+  skip_cleanup: true
+  # Répertoire où se trouvent les fichiers générés
+  local_dir: build
+  # Github security/auth token
+  github_token: $GITHUB_TOKEN
+  # Conserve les anciens fichiers/constructions des déploiements précédents
+  # keep_history: true
+  # La branche Git sur laquelle on souhaite déployer (master, gh-pages, foo...)
+  target_branch: gh-pages
+  on:
+    # Quelle branche déclenchera le déploiement
+    branch: master
