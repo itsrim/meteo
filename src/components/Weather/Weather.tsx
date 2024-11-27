@@ -19,7 +19,7 @@ export const ForecastSevenDays = async (lat: string, lon: string) => {
     } else {
       return "";
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error(e.error);
   }
 };
@@ -39,7 +39,7 @@ const FetchData = async (query: any) => {
     } else {
       return "";
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error(e.error);
   }
 };
