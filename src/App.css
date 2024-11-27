@@ -13,6 +13,10 @@
   }
 }
 
+.main {
+  min-width: 100vw;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -23,16 +27,6 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
-/* body {
-  background: linear-gradient(to right, rgb(255, 167, 35), rgb(25, 97, 235));
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-} */
 
 .App-link {
   color: #61dafb;
@@ -187,3 +181,8 @@
 .active, .collapsible:hover {
   background-color: #555;
 }
+
+
+
+/* ++++++++++++ */
+
