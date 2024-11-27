@@ -1,91 +1,118 @@
-import React from "react";
-import "./App.css";
-import "bulma/css/bulma.css";
-import { convert } from "./components/utils/Currency";
-// import Button from './components/button/Button';
-import Counter from "./components/Counter/Counter";
-import Forecast from "./components/Weather/Forecast";
+import { useState, useEffect } from "react";
+import { fetchWeatherData, fetchForecastData } from "./components/api";
+import WeatherCard from "./components/WeatherCard";
+import "./index.css";
 
 function App() {
-  const [conversion, setConversion] = React.useState<string>("");
-  const [counter, setCounter] = React.useState<number>(0);
-  const [collapse, setCollapse] = React.useState<Boolean>(false);
+  const [city, setCity] = useState("Toulouse"); // Default city set to Toulouse
+  const [weather, setWeather] = useState(null);
+  const [hourlyForecast, setHourlyForecast] = useState([]);
+  const [dailyForecast, setDailyForecast] = useState([]);
 
-  React.useEffect(() => {
+  const handleCityChange = (selectedCity) => {
+    setCity(selectedCity);
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
-      const result: string = await convert("USD", "EUR");
-      setConversion(result);
+      try {
+        const weatherData = await fetchWeatherData(city);
+        const forecastData = await fetchForecastData(city);
+
+        setWeather({
+          temperature: weatherData.main.temp,
+          description: weatherData.weather[0].description,
+          icon: weatherData.weather[0].icon,
+        });
+
+        const todayHourly = forecastData.list.slice(0, 8).map((item) => ({
+          time: new Date(item.dt * 1000).toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          temp: item.main.temp,
+          icon: item.weather[0].icon,
+        }));
+        setHourlyForecast(todayHourly);
+
+        const daily = forecastData.list.filter((item) =>
+          item.dt_txt.includes("12:00:00")
+        );
+        setDailyForecast(
+          daily.map((item) => ({
+            date: new Date(item.dt * 1000).toLocaleDateString("en-US", {
+              weekday: "long",
+            }),
+            temp: item.main.temp,
+            description: item.weather[0].description,
+            icon: item.weather[0].icon,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
     fetchData();
-  }, []);
+  }, [city]);
+
   return (
-    <div className="App">
-      {/* <header className="App-header">header</header> */}
-      <div
-        className="main"
-        style={{
-          background: `linear-gradient(to right, rgb(255, 167, 35), rgb(25, 97, 235))`,
-          minHeight: "100vh",
-        }}
-      >
-        <Forecast />
-        <a href="#myCard">
-          <button
-            id="conversionHeader"
-            type="button"
-            className="collapsible mt-5 has-text-centered"
-            onClick={() => setCollapse(!collapse)}
-          >
-            Open Conversion $/€ debug
-            <i className="fa fa-caret-square-o-down"></i>
-          </button>
-        </a>
-        {collapse && (
-          <div className="content">
-            <div className="card" id="myCard">
-              <Counter />
-              <h1 id="titleConversion">conversion rate : $ USD - € EUR</h1>
-              <h3>{conversion ? conversion : ""} : rate $ / €</h3>
-              <h2>CI-CD</h2>
-              {/* <Button label="click me please"></Button> 
-                <p> Edit <code>src/App.tsx</code> and save to reload.</p> */}
-              <div className="d-inline-flex p-2">
-                <button
-                  id="increment-btn"
-                  className="button mr-2"
-                  style={{
-                    border: "1px solid yellow",
-                    borderRadius: "8px",
-                    padding: "3px 3px",
-                  }}
-                  onClick={() => setCounter(counter + 1)}
-                >
-                  + Increment
-                </button>
-                <button
-                  id="decrement-btn"
-                  className="button"
-                  style={{
-                    border: "1px solid yellow",
-                    borderRadius: "8px",
-                    padding: "3px 3px",
-                  }}
-                  onClick={() => setCounter(counter > 0 ? counter - 1 : 0)}
-                >
-                  - Decrement
-                </button>
-              </div>
-              <p>
-                Conversion {(counter / parseFloat(conversion)).toFixed(2)} $
-              </p>
-              <div className="d-inline-flex p-2">
-                <span id="counter-value">{counter}</span>
-                <span> €</span>
-              </div>
-              {/* <Button label="from App" /> */}
-            </div>
-          </div>
+    <div className="app">
+      {/* Input field */}
+      <input
+        type="text"
+        className="search-box"
+        placeholder="City?" // Placeholder updated
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+      />
+
+      {/* City selection buttons */}
+      <div className="city-buttons">
+        <button onClick={() => handleCityChange("Turku")}>Turku</button>
+        <button onClick={() => handleCityChange("Toulouse")}>Toulouse</button>
+        <button onClick={() => handleCityChange("Paris")}>Paris</button>
+      </div>
+
+      <div className="weather-container">
+        {/* Current weather */}
+        {weather && (
+          <WeatherCard
+            title="Today"
+            temperature={weather.temperature}
+            description={weather.description}
+            icon={weather.icon}
+          />
         )}
+
+        {/* Hourly forecast */}
+        <div className="hourly-container">
+          <h3>Hourly Forecast</h3>
+          <div className="hourly-forecast">
+            {hourlyForecast.map((hour, index) => (
+              <div key={index} className="hourly-item">
+                <p>{hour.time}</p>
+                <img
+                  src={`https://openweathermap.org/img/wn/${hour.icon}.png`}
+                  alt="weather-icon"
+                />
+                <p>{Math.round(hour.temp)}°</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Daily forecast */}
+        <div className="forecast-vertical">
+          {dailyForecast.map((day, index) => (
+            <WeatherCard
+              key={index}
+              title={day.date}
+              temperature={day.temp}
+              description={day.description}
+              icon={day.icon}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
