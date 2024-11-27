@@ -4,10 +4,15 @@ import WeatherCard from "./components/WeatherCard";
 import "./index.css";
 
 function App() {
-  const [city, setCity] = useState("Toulouse"); // Default city set to Toulouse
+  const [city, setCity] = useState("Toulouse");
   const [weather, setWeather] = useState(null);
   const [hourlyForecast, setHourlyForecast] = useState([]);
   const [dailyForecast, setDailyForecast] = useState([]);
+  const [backgroundImage, setBackgroundImage] = useState("");
+
+  const isLocalEnvironment = () => {
+    return window.location.hostname.includes("localhost");
+  };
 
   const handleCityChange = (selectedCity) => {
     setCity(selectedCity);
@@ -19,10 +24,19 @@ function App() {
         const weatherData = await fetchWeatherData(city);
         const forecastData = await fetchForecastData(city);
 
+        const mainWeather = weatherData.weather[0].main.toLowerCase();
+        const imageUrl = isLocalEnvironment()
+          ? `${mainWeather}.jpg`
+          : `/${mainWeather}.jpg`;
+
+        console.log(`Image URL for today's weather: ${imageUrl}`);
+        setBackgroundImage(imageUrl);
+
         setWeather({
           temperature: weatherData.main.temp,
           description: weatherData.weather[0].description,
           icon: weatherData.weather[0].icon,
+          main: mainWeather,
         });
 
         const todayHourly = forecastData.list.slice(0, 8).map((item) => ({
@@ -61,7 +75,7 @@ function App() {
       <input
         type="text"
         className="search-box"
-        placeholder="City?" // Placeholder updated
+        placeholder="City?"
         value={city}
         onChange={(e) => setCity(e.target.value)}
       />
@@ -77,10 +91,11 @@ function App() {
         {/* Current weather */}
         {weather && (
           <WeatherCard
-            title="Today"
+            title={`Today in ${city}`}
             temperature={weather.temperature}
             description={weather.description}
             icon={weather.icon}
+            backgroundImage={backgroundImage}
           />
         )}
 
