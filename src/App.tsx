@@ -27,7 +27,7 @@ function App() {
         const mainWeather = weatherData.weather[0].main.toLowerCase();
         const imageUrl = isLocalEnvironment()
           ? `${mainWeather}.jpg`
-          : `meteo/${mainWeather}.jpg`;
+          : `/meteo/${mainWeather}.jpg`;
 
         console.log(`Image URL for today's weather: ${imageUrl}`);
         setBackgroundImage(imageUrl);
