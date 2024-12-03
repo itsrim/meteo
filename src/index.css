@@ -2,11 +2,9 @@
 .app {
   font-family: Arial, sans-serif;
 }
-
-/* Champ de recherche */
-.search-container {
-  text-align: center;
-  margin-top: 20px;
+.parent-container {
+  display: block;
+  width: 100%;
 }
 
 .search-box-wrapper {
@@ -14,29 +12,39 @@
   justify-content: center;
   align-items: center;
   max-width: 400px;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.3);
+  width: 100%; /* S'adapte aux petits écrans */
+  padding: 10px; /* Optionnel, pour éviter que l'input touche les bords */
+  background-color: rgba(255, 255, 255, 0.3); /* Pour plus de contraste */
   border-radius: 5px;
-  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+}
+.search-container {
+  display: flex;               /* Active le modèle flexbox */
+  justify-content: center;     /* Centre horizontalement */
+  align-items: center;         /* Centre verticalement */
+  width: 100%;                 /* Prend toute la largeur disponible */
+  margin: 0;                   /* Supprime les marges */
+  padding: 0;                  /* Supprime les paddings */
 }
 
 .search-box {
-  flex: 1;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-  outline: none;
-  background-color: rgba(255, 255, 255, 0.8);
-  color: black;
-  transition: border-color 0.3s ease;
+  width: 50%;                  /* Largeur de l'input relative à la fenêtre */
+  max-width: 400px;            /* Largeur maximale */
+  padding: 10px;               /* Espacement interne */
+  font-size: 1rem;             /* Taille de la police */
+  border: 1px solid hsl(0, 0%, 80%);      /* Bordure grise */
+  border-radius: 5px;          /* Coins arrondis */
+  outline: none;               /* Supprime le contour par défaut */
+  background-color: white;     /* Couleur de fond */
+  color: black;                /* Couleur du texte */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombre subtile */
 }
 
 .search-box:focus {
-  border-color: #007bff;
+  border-color: #afc8e2;
 }
 
-/* Boutons de sélection rapide */
+/* Boutons pour Turku, Toulouse, Paris */
 .city-buttons {
   display: flex;
   justify-content: center;
@@ -44,10 +52,45 @@
   margin-top: 15px;
 }
 
+
+/* Prévisions horaires */
+.hourly-container {
+  margin-top: 20px;
+}
+
+.hourly-forecast {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px;
+  gap: 10px;
+  background-color: rgba(255, 255, 255, 0.15); /* Fond plus clair pour la zone */
+  border-radius: 5px;
+}
+
+.hourly-item {
+  text-align: center;
+  min-width: 80px;
+  flex-shrink: 0;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.5); /* Fond clair pour chaque élément */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+}
+
+.hourly-item img {
+  width: 50px;
+  height: 50px;
+}
+
+.hourly-item p {
+  margin: 5px 0;
+}
+
+
 .city-buttons button {
   padding: 10px 15px;
   font-size: 0.9rem;
-  background-color: #007bff;
+  background-color: #bb7ff7;
   color: white;
   border: none;
   border-radius: 5px;
@@ -56,7 +99,7 @@
 }
 
 .city-buttons button:hover {
-  background-color: #0056b3;
+  background-color: #bf70f4;
   transform: scale(1.05); /* Petite animation au survol */
 }
 
@@ -143,4 +186,23 @@
     padding: 10px;
     font-size: 0.9rem;
   }
+}
+
+/* Background blur */
+.background-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px); /* Add blur effect */
+  z-index: -1; /* Push background behind the content */
+}
+
+/* Main content to overlay on the background */
+.content {
+  position: relative;
+  z-index: 1;
 }
