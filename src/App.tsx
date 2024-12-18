@@ -19,7 +19,7 @@ function App() {
     const mainWeather = weatherMain.toLowerCase();
     return isLocalEnvironment()
       ? `${mainWeather}.jpg` // Local path
-      : `meteo/${mainWeather}.jpg`; // Production path
+      : `/meteo/${mainWeather}.jpg`; // Production path
   };
 
   useEffect(() => {
